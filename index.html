@@ -70,7 +70,7 @@
 <body>
 <header>
   <h1>Combined Portfolio — Holdings by % of Value</h1>
-  <div class="sub">Options + stocks · as of Apr 16, 2026</div>
+  <div class="sub" id="status">Options + stocks · loading prices&hellip;</div>
 </header>
 
 <div class="tabs" role="tablist">
@@ -150,316 +150,323 @@
 <div class="foot">Tip: click a column header to sort, click a slice / row to highlight, or expand a category to see its holdings.</div>
 
 <script>
-const data = {
-  "total_value": 1418288.42,
-  "total_cost": 988201.45,
-  "rows": [
-    {"symbol":"DRAM","name":"DRAM","cost":284700.00,"value":352300.00,"pct":24.84,"pnl":67600.00,"pnl_pct":23.74,"opt_val":0,"stk_val":352300.00},
-    {"symbol":"MU","name":"Micron","cost":83143.00,"value":265848.00,"pct":18.74,"pnl":182705.00,"pnl_pct":219.75,"opt_val":265848.00,"stk_val":0},
-    {"symbol":"GOOG","name":"Alphabet","cost":79642.65,"value":160080.42,"pct":11.29,"pnl":80437.77,"pnl_pct":101.00,"opt_val":93036.00,"stk_val":67044.42},
-    {"symbol":"NVDA","name":"Nvidia","cost":115663.80,"value":128661.00,"pct":9.07,"pnl":12997.20,"pnl_pct":11.24,"opt_val":88755.00,"stk_val":39906.00},
-    {"symbol":"HOOD","name":"RobinHood","cost":57690.00,"value":86730.00,"pct":6.12,"pnl":29040.00,"pnl_pct":50.34,"opt_val":0,"stk_val":86730.00},
-    {"symbol":"GLXY","name":"Galaxy","cost":64320.00,"value":52020.00,"pct":3.67,"pnl":-12300.00,"pnl_pct":-19.12,"opt_val":27960.00,"stk_val":24060.00},
-    {"symbol":"CRWV","name":"Coreweave","cost":33554.00,"value":47094.00,"pct":3.32,"pnl":13540.00,"pnl_pct":40.35,"opt_val":23340.00,"stk_val":23754.00},
-    {"symbol":"COIN","name":"Coinbase","cost":37614.00,"value":39250.00,"pct":2.77,"pnl":1636.00,"pnl_pct":4.35,"opt_val":0,"stk_val":39250.00},
-    {"symbol":"AMZN","name":"Amazon","cost":27997.00,"value":38000.00,"pct":2.68,"pnl":10003.00,"pnl_pct":35.73,"opt_val":38000.00,"stk_val":0},
-    {"symbol":"META","name":"Meta","cost":28841.00,"value":36100.00,"pct":2.55,"pnl":7259.00,"pnl_pct":25.17,"opt_val":36100.00,"stk_val":0},
-    {"symbol":"ORCL","name":"Oracle","cost":32018.00,"value":35354.00,"pct":2.49,"pnl":3336.00,"pnl_pct":10.42,"opt_val":0,"stk_val":35354.00},
-    {"symbol":"RKLB","name":"Rocketlab","cost":29012.00,"value":32276.00,"pct":2.28,"pnl":3264.00,"pnl_pct":11.25,"opt_val":0,"stk_val":32276.00},
-    {"symbol":"KRKNF","name":"Kraken Robotics","cost":25500.00,"value":31000.00,"pct":2.19,"pnl":5500.00,"pnl_pct":21.57,"opt_val":0,"stk_val":31000.00},
-    {"symbol":"AAPL","name":"Apple","cost":25115.00,"value":25350.00,"pct":1.79,"pnl":235.00,"pnl_pct":0.94,"opt_val":25350.00,"stk_val":0},
-    {"symbol":"NBIS","name":"Nebius","cost":9717.00,"value":24255.00,"pct":1.71,"pnl":14538.00,"pnl_pct":149.61,"opt_val":24255.00,"stk_val":0},
-    {"symbol":"RDW","name":"Redwire","cost":21200.00,"value":22500.00,"pct":1.59,"pnl":1300.00,"pnl_pct":6.13,"opt_val":22500.00,"stk_val":0},
-    {"symbol":"LUNR","name":"Intuitive Machines","cost":21056.00,"value":22000.00,"pct":1.55,"pnl":944.00,"pnl_pct":4.48,"opt_val":22000.00,"stk_val":0},
-    {"symbol":"MSFT","name":"Microsoft","cost":11418.00,"value":19470.00,"pct":1.37,"pnl":8052.00,"pnl_pct":70.52,"opt_val":19470.00,"stk_val":0}
-  ]
-};
+// ============ HOLDINGS — shares + static option values ============
+// Stock values update live; option values are frozen snapshots.
+const holdings = [
+  {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:35.23,opt:0},
+  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,opt:265848},
+  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:335.22,opt:93036},
+  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:199.53,opt:88755},
+  {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:86.73,opt:0},
+  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:24.06,opt:27960},
+  {symbol:'CRWV',name:'Coreweave',cost:33554,shares:200,fp:118.77,opt:23340},
+  {symbol:'COIN',name:'Coinbase',cost:37614,shares:200,fp:196.25,opt:0},
+  {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:38000},
+  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,opt:36100},
+  {symbol:'ORCL',name:'Oracle',cost:32018,shares:200,fp:176.77,opt:0},
+  {symbol:'RKLB',name:'Rocketlab',cost:29012,shares:400,fp:80.69,opt:0},
+  {symbol:'KRKNF',name:'Kraken Robotics',cost:25500,shares:5000,fp:6.20,opt:0},
+  {symbol:'AAPL',name:'Apple',cost:25115,shares:0,fp:0,opt:25350},
+  {symbol:'NBIS',name:'Nebius',cost:9717,shares:0,fp:0,opt:24255},
+  {symbol:'RDW',name:'Redwire',cost:21200,shares:0,fp:0,opt:22500},
+  {symbol:'LUNR',name:'Intuitive Machines',cost:21056,shares:0,fp:0,opt:22000},
+  {symbol:'MSFT',name:'Microsoft',cost:11418,shares:0,fp:0,opt:19470}
+];
 
-// Category definitions — edit these to reshape groupings.
-// Any symbol not listed ends up in "Other Bets".
 const categoryDef = [
-  { key:"memory",     label:"Memory",        color:"#7cc4ff", symbols:["DRAM","MU"] },
-  { key:"hyper",      label:"Hyper Scalers", color:"#b98cff", symbols:["GOOG","MSFT","AMZN"] },
-  { key:"dc",         label:"Data Centers",  color:"#3ddc97", symbols:["GLXY","ORCL","NBIS","CRWV"] },
-  { key:"space",      label:"Space",         color:"#ffcc66", symbols:["RDW","LUNR","RKLB"] },
-  { key:"crypto",     label:"Crypto",        color:"#ffa07a", symbols:["HOOD","COIN"] },
-  { key:"defense",    label:"Defense",       color:"#66d9ef", symbols:["KRKNF"] },
-  { key:"other",      label:"Other Bets",    color:"#ff8a80", symbols:null } // catch-all
+  {key:'memory',label:'Memory',color:'#7cc4ff',symbols:['DRAM','MU']},
+  {key:'hyper',label:'Hyper Scalers',color:'#b98cff',symbols:['GOOG','MSFT','AMZN']},
+  {key:'dc',label:'Data Centers',color:'#3ddc97',symbols:['GLXY','ORCL','NBIS','CRWV']},
+  {key:'space',label:'Space',color:'#ffcc66',symbols:['RDW','LUNR','RKLB']},
+  {key:'crypto',label:'Crypto',color:'#ffa07a',symbols:['HOOD','COIN']},
+  {key:'defense',label:'Defense',color:'#66d9ef',symbols:['KRKNF']},
+  {key:'other',label:'Other Bets',color:'#ff8a80',symbols:null}
 ];
 
 const palette = [
-  "#7cc4ff","#b98cff","#3ddc97","#ffcc66","#ff8a80","#66d9ef",
-  "#f093fb","#84fab0","#ffa07a","#c6a0ff","#8fd3f4","#fcb69f",
-  "#a0e7a0","#ffd3a5","#d4a5ff","#a5d8ff","#ffadad","#a0c4ff"
+  '#7cc4ff','#b98cff','#3ddc97','#ffcc66','#ff8a80','#66d9ef',
+  '#f093fb','#84fab0','#ffa07a','#c6a0ff','#8fd3f4','#fcb69f',
+  '#a0e7a0','#ffd3a5','#d4a5ff','#a5d8ff','#ffadad','#a0c4ff'
 ];
 
-const fmtUSD = v => (v<0?"-":"") + "$" + Math.abs(v).toLocaleString("en-US",{maximumFractionDigits:0});
-const fmtUSD2 = v => (v<0?"-":"") + "$" + Math.abs(v).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
-const fmtPct = v => v.toFixed(2) + "%";
+const fmtUSD = v => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{maximumFractionDigits:0});
+const fmtUSD2 = v => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
+const fmtPct = v => v.toFixed(2) + '%';
 
-// Build category aggregates
-function buildCategories(){
-  const assigned = new Set();
-  const cats = categoryDef.filter(c => c.symbols).map(c => {
-    const holdings = c.symbols.map(s => data.rows.find(r=>r.symbol===s)).filter(Boolean);
-    holdings.forEach(h => assigned.add(h.symbol));
-    return { ...c, holdings };
-  });
-  const other = categoryDef.find(c => !c.symbols);
-  if(other){
-    const leftovers = data.rows.filter(r => !assigned.has(r.symbol));
-    cats.push({ ...other, holdings: leftovers });
-  }
-  return cats.map(c => {
-    const cost = c.holdings.reduce((a,h)=>a+h.cost,0);
-    const value = c.holdings.reduce((a,h)=>a+h.value,0);
-    const pnl = value - cost;
-    return {
-      ...c,
-      cost, value, pnl,
-      pnl_pct: cost ? pnl/cost*100 : 0,
-      pct: value/data.total_value*100,
-      count: c.holdings.length
-    };
-  }).sort((a,b)=>b.value-a.value);
+// ============ PRICE FETCHING ============
+async function fetchPrices(symbols) {
+  const prices = {};
+  const unique = [...new Set(symbols)];
+  await Promise.allSettled(unique.map(async sym => {
+    const urls = [
+      `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`,
+      `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`)}`
+    ];
+    for (const url of urls) {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) continue;
+        const d = await res.json();
+        const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
+        if (p) { prices[sym] = p; return; }
+      } catch {}
+    }
+  }));
+  return Object.keys(prices).length > 0 ? prices : null;
 }
-const categories = buildCategories();
 
-// KPIs
-const pnlTotal = data.total_value - data.total_cost;
-const retTotal = pnlTotal / data.total_cost * 100;
-document.getElementById("k-value").textContent = fmtUSD2(data.total_value);
-document.getElementById("k-cost").textContent  = fmtUSD2(data.total_cost);
-const pnlEl = document.getElementById("k-pnl");
-pnlEl.textContent = (pnlTotal>=0?"+":"") + fmtUSD2(pnlTotal); pnlEl.classList.add(pnlTotal>=0?"good":"bad");
-const retEl = document.getElementById("k-ret");
-retEl.textContent = (retTotal>=0?"+":"") + retTotal.toFixed(2)+"%"; retEl.classList.add(retTotal>=0?"good":"bad");
-document.getElementById("k-n").textContent = data.rows.length;
+function buildData(prices) {
+  const rows = holdings.map(h => {
+    const price = prices?.[h.symbol] ?? h.fp;
+    const stk_val = h.shares * price;
+    const opt_val = h.opt;
+    const value = stk_val + opt_val;
+    const pnl = value - h.cost;
+    const pnl_pct = h.cost > 0 ? (pnl / h.cost * 100) : 0;
+    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0};
+  });
+  const total_value = rows.reduce((a,r) => a + r.value, 0);
+  const total_cost = rows.reduce((a,r) => a + r.cost, 0);
+  rows.forEach(r => r.pct = total_value > 0 ? (r.value / total_value * 100) : 0);
+  rows.sort((a,b) => b.value - a.value);
+  return {total_value, total_cost, rows};
+}
 
-const textColor = getComputedStyle(document.documentElement).getPropertyValue("--text").trim();
-const panelColor = getComputedStyle(document.documentElement).getPropertyValue("--panel").trim();
+// ============ GLOBALS ============
+let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
 
-// ========= BY SYMBOL CHART =========
-const symbolColors = data.rows.map((_,i)=>palette[i%palette.length]);
-const pieSymbol = new Chart(document.getElementById("pie-symbol").getContext("2d"),{
-  type:"doughnut",
-  data:{
-    labels: data.rows.map(r=>r.symbol),
-    datasets:[{
-      data: data.rows.map(r=>r.value),
-      backgroundColor: symbolColors,
-      borderColor: panelColor, borderWidth: 2, hoverOffset: 10
-    }]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false, cutout:"55%",
-    plugins:{
-      legend:{ position:"right",
-        labels:{ color:textColor, boxWidth:10, boxHeight:10, font:{size:12},
-          generateLabels:(c)=>{
-            const ds=c.data.datasets[0];
-            return c.data.labels.map((lab,i)=>({
-              text: `${lab}  ${data.rows[i].pct.toFixed(1)}%`,
-              fillStyle: ds.backgroundColor[i], strokeStyle: ds.backgroundColor[i], index:i
-            }));
-          }}},
-      tooltip:{ callbacks:{
-        label: (ctx)=>{
-          const r = data.rows[ctx.dataIndex];
-          return ` ${r.name} (${r.symbol}): ${fmtUSD(r.value)} · ${r.pct.toFixed(2)}%`;
-        }
-      }}
+// ============ INIT ============
+(async function init() {
+  const prices = await fetchPrices(holdings.map(h => h.symbol));
+  const isLive = !!prices;
+  data = buildData(prices);
+
+  const statusEl = document.getElementById('status');
+  if (isLive) {
+    const t = new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    statusEl.textContent = `Stock prices live \u00b7 options as of Apr 16 \u00b7 updated ${t}`;
+  } else {
+    statusEl.textContent = 'Options + stocks \u00b7 cached prices (Apr 16, 2026)';
+  }
+
+  // Build categories
+  function buildCategories(){
+    const assigned = new Set();
+    const cats = categoryDef.filter(c => c.symbols).map(c => {
+      const h = c.symbols.map(s => data.rows.find(r=>r.symbol===s)).filter(Boolean);
+      h.forEach(x => assigned.add(x.symbol));
+      return {...c, holdings:h};
+    });
+    const other = categoryDef.find(c => !c.symbols);
+    if(other) cats.push({...other, holdings: data.rows.filter(r => !assigned.has(r.symbol))});
+    return cats.map(c => {
+      const cost = c.holdings.reduce((a,h)=>a+h.cost,0);
+      const value = c.holdings.reduce((a,h)=>a+h.value,0);
+      const pnl = value - cost;
+      return {...c, cost, value, pnl, pnl_pct: cost ? pnl/cost*100 : 0, pct: value/data.total_value*100, count: c.holdings.length};
+    }).sort((a,b)=>b.value-a.value);
+  }
+  categories = buildCategories();
+
+  // KPIs
+  pnlTotal = data.total_value - data.total_cost;
+  retTotal = pnlTotal / data.total_cost * 100;
+  document.getElementById('k-value').textContent = fmtUSD2(data.total_value);
+  document.getElementById('k-cost').textContent = fmtUSD2(data.total_cost);
+  const pnlEl = document.getElementById('k-pnl');
+  pnlEl.textContent = (pnlTotal>=0?'+':'') + fmtUSD2(pnlTotal); pnlEl.classList.add(pnlTotal>=0?'good':'bad');
+  const retEl = document.getElementById('k-ret');
+  retEl.textContent = (retTotal>=0?'+':'') + retTotal.toFixed(2)+'%'; retEl.classList.add(retTotal>=0?'good':'bad');
+  document.getElementById('k-n').textContent = data.rows.length;
+
+  const textColor = getComputedStyle(document.documentElement).getPropertyValue('--text').trim();
+  const panelColor = getComputedStyle(document.documentElement).getPropertyValue('--panel').trim();
+
+  // ========= BY SYMBOL CHART =========
+  const symbolColors = data.rows.map((_,i)=>palette[i%palette.length]);
+  pieSymbol = new Chart(document.getElementById('pie-symbol').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels: data.rows.map(r=>r.symbol),
+      datasets:[{data: data.rows.map(r=>r.value), backgroundColor: symbolColors, borderColor: panelColor, borderWidth: 2, hoverOffset: 10}]
     },
-    onClick:(e,el)=>{ if(el.length) highlightSymbol(data.rows[el[0].index].symbol); }
-  }
-});
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{
+        legend:{position:'right',labels:{color:textColor,boxWidth:10,boxHeight:10,font:{size:12},
+          generateLabels:c=>{const ds=c.data.datasets[0]; return c.data.labels.map((lab,i)=>({text:`${lab}  ${data.rows[i].pct.toFixed(1)}%`,fillStyle:ds.backgroundColor[i],strokeStyle:ds.backgroundColor[i],index:i}));}}},
+        tooltip:{callbacks:{label:ctx=>{const r=data.rows[ctx.dataIndex]; return ` ${r.name} (${r.symbol}): ${fmtUSD(r.value)} \u00b7 ${r.pct.toFixed(2)}%`;}}}
+      },
+      onClick:(e,el)=>{if(el.length) highlightSymbol(data.rows[el[0].index].symbol);}
+    }
+  });
 
-// ========= BY CATEGORY CHART =========
-const pieCategory = new Chart(document.getElementById("pie-category").getContext("2d"),{
-  type:"doughnut",
-  data:{
-    labels: categories.map(c=>c.label),
-    datasets:[{
-      data: categories.map(c=>c.value),
-      backgroundColor: categories.map(c=>c.color),
-      borderColor: panelColor, borderWidth: 2, hoverOffset: 10
-    }]
-  },
-  options:{
-    responsive:true, maintainAspectRatio:false, cutout:"55%",
-    plugins:{
-      legend:{ position:"right",
-        labels:{ color:textColor, boxWidth:12, boxHeight:12, font:{size:13},
-          generateLabels:(c)=>{
-            const ds=c.data.datasets[0];
-            return c.data.labels.map((lab,i)=>({
-              text: `${lab}  ${categories[i].pct.toFixed(1)}%`,
-              fillStyle: ds.backgroundColor[i], strokeStyle: ds.backgroundColor[i], index:i
-            }));
-          }}},
-      tooltip:{ callbacks:{
-        label: (ctx)=>{
-          const c = categories[ctx.dataIndex];
-          return ` ${c.label}: ${fmtUSD(c.value)} · ${c.pct.toFixed(2)}% · ${c.count} holding${c.count===1?"":"s"}`;
-        }
-      }}
+  // ========= BY CATEGORY CHART =========
+  pieCategory = new Chart(document.getElementById('pie-category').getContext('2d'),{
+    type:'doughnut',
+    data:{
+      labels: categories.map(c=>c.label),
+      datasets:[{data: categories.map(c=>c.value), backgroundColor: categories.map(c=>c.color), borderColor: panelColor, borderWidth: 2, hoverOffset: 10}]
     },
-    onClick:(e,el)=>{ if(el.length) toggleCategory(categories[el[0].index].key, true); }
+    options:{
+      responsive:true, maintainAspectRatio:false, cutout:'55%',
+      plugins:{
+        legend:{position:'right',labels:{color:textColor,boxWidth:12,boxHeight:12,font:{size:13},
+          generateLabels:c=>{const ds=c.data.datasets[0]; return c.data.labels.map((lab,i)=>({text:`${lab}  ${categories[i].pct.toFixed(1)}%`,fillStyle:ds.backgroundColor[i],strokeStyle:ds.backgroundColor[i],index:i}));}}},
+        tooltip:{callbacks:{label:ctx=>{const c=categories[ctx.dataIndex]; return ` ${c.label}: ${fmtUSD(c.value)} \u00b7 ${c.pct.toFixed(2)}% \u00b7 ${c.count} holding${c.count===1?'':'s'}`;}}}
+      },
+      onClick:(e,el)=>{if(el.length) toggleCategory(categories[el[0].index].key, true);}
+    }
+  });
+
+  // ========= SYMBOL TABLE =========
+  const tbodySymbol = document.querySelector('#tbl-symbol tbody');
+  let symbolSort = {key:'value', dir:'desc'};
+  function renderSymbolRows(){
+    const rows = data.rows.slice().sort((a,b)=>{
+      const k=symbolSort.key;
+      let av = k==='mix' ? (a.value?a.opt_val/a.value:0) : a[k];
+      let bv = k==='mix' ? (b.value?b.opt_val/b.value:0) : b[k];
+      if(typeof av==='string') return symbolSort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+      return symbolSort.dir==='asc' ? av-bv : bv-av;
+    });
+    tbodySymbol.innerHTML = rows.map(r=>{
+      const idx = data.rows.findIndex(x=>x.symbol===r.symbol);
+      const color = palette[idx % palette.length];
+      const optPct = r.value>0 ? r.opt_val/r.value*100 : 0;
+      const stkPct = 100-optPct;
+      return `<tr data-sym="${r.symbol}">
+        <td><span class="sym"><span class="dot" style="background:${color}"></span>${r.symbol}</span></td>
+        <td>${r.name}</td>
+        <td>${fmtUSD(r.cost)}</td>
+        <td>${fmtUSD(r.value)}</td>
+        <td>${fmtPct(r.pct)}</td>
+        <td><span class="mix" title="Options ${optPct.toFixed(0)}% / Stock ${stkPct.toFixed(0)}%"><span class="legend-opt" style="width:${optPct}%"></span><span class="legend-stk" style="width:${stkPct}%"></span></span></td>
+        <td class="${r.pnl>=0?'good':'bad'}">${r.pnl>=0?'+':''}${fmtUSD(r.pnl)}</td>
+        <td class="${r.pnl_pct>=0?'good':'bad'}">${r.pnl_pct>=0?'+':''}${r.pnl_pct.toFixed(2)}%</td>
+      </tr>`;
+    }).join('');
+    tbodySymbol.querySelectorAll('tr').forEach(tr=>{
+      tr.addEventListener('click',()=>highlightSymbol(tr.dataset.sym));
+    });
   }
-});
+  function renderSymbolTotals(){
+    const optTot = data.rows.reduce((a,r)=>a+r.opt_val,0);
+    const optPct = optTot/data.total_value*100;
+    document.getElementById('totals-symbol').innerHTML = `
+      <td colspan="2">Total</td>
+      <td>${fmtUSD(data.total_cost)}</td>
+      <td>${fmtUSD(data.total_value)}</td>
+      <td>100.00%</td>
+      <td><span class="mix"><span class="legend-opt" style="width:${optPct}%"></span><span class="legend-stk" style="width:${100-optPct}%"></span></span></td>
+      <td class="${pnlTotal>=0?'good':'bad'}">${pnlTotal>=0?'+':''}${fmtUSD(pnlTotal)}</td>
+      <td class="${retTotal>=0?'good':'bad'}">${retTotal>=0?'+':''}${retTotal.toFixed(2)}%</td>`;
+  }
+  document.querySelectorAll('#tbl-symbol thead th').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const key = th.dataset.key;
+      if(symbolSort.key===key) symbolSort.dir = symbolSort.dir==='asc'?'desc':'asc';
+      else { symbolSort.key=key; symbolSort.dir = (key==='symbol'||key==='name')?'asc':'desc'; }
+      document.querySelectorAll('#tbl-symbol thead th').forEach(x=>x.classList.remove('asc','desc'));
+      th.classList.add(symbolSort.dir);
+      renderSymbolRows();
+    });
+  });
 
-// ========= SYMBOL TABLE =========
-const tbodySymbol = document.querySelector("#tbl-symbol tbody");
-let symbolSort = {key:"value", dir:"desc"};
-function renderSymbolRows(){
-  const rows = data.rows.slice().sort((a,b)=>{
-    const k=symbolSort.key;
-    let av = k==='mix' ? (a.value?a.opt_val/a.value:0) : a[k];
-    let bv = k==='mix' ? (b.value?b.opt_val/b.value:0) : b[k];
-    if(typeof av==='string'){ return symbolSort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av); }
-    return symbolSort.dir==='asc' ? av-bv : bv-av;
-  });
-  tbodySymbol.innerHTML = rows.map(r=>{
-    const idx = data.rows.findIndex(x=>x.symbol===r.symbol);
-    const color = palette[idx % palette.length];
-    const optPct = r.value>0 ? r.opt_val/r.value*100 : 0;
-    const stkPct = 100-optPct;
-    return `<tr data-sym="${r.symbol}">
-      <td><span class="sym"><span class="dot" style="background:${color}"></span>${r.symbol}</span></td>
-      <td>${r.name}</td>
-      <td>${fmtUSD(r.cost)}</td>
-      <td>${fmtUSD(r.value)}</td>
-      <td>${fmtPct(r.pct)}</td>
-      <td><span class="mix" title="Options ${optPct.toFixed(0)}% / Stock ${stkPct.toFixed(0)}%"><span class="legend-opt" style="width:${optPct}%"></span><span class="legend-stk" style="width:${stkPct}%"></span></span></td>
-      <td class="${r.pnl>=0?'good':'bad'}">${r.pnl>=0?'+':''}${fmtUSD(r.pnl)}</td>
-      <td class="${r.pnl_pct>=0?'good':'bad'}">${r.pnl_pct>=0?'+':''}${r.pnl_pct.toFixed(2)}%</td>
-    </tr>`;
-  }).join("");
-  tbodySymbol.querySelectorAll("tr").forEach(tr=>{
-    tr.addEventListener("click",()=>highlightSymbol(tr.dataset.sym));
-  });
-}
-function renderSymbolTotals(){
-  const optTot = data.rows.reduce((a,r)=>a+r.opt_val,0);
-  const optPct = optTot/data.total_value*100;
-  document.getElementById("totals-symbol").innerHTML = `
-    <td colspan="2">Total</td>
-    <td>${fmtUSD(data.total_cost)}</td>
-    <td>${fmtUSD(data.total_value)}</td>
-    <td>100.00%</td>
-    <td><span class="mix"><span class="legend-opt" style="width:${optPct}%"></span><span class="legend-stk" style="width:${100-optPct}%"></span></span></td>
-    <td class="${pnlTotal>=0?'good':'bad'}">${pnlTotal>=0?'+':''}${fmtUSD(pnlTotal)}</td>
-    <td class="${retTotal>=0?'good':'bad'}">${retTotal>=0?'+':''}${retTotal.toFixed(2)}%</td>`;
-}
-document.querySelectorAll("#tbl-symbol thead th").forEach(th=>{
-  th.addEventListener("click",()=>{
-    const key = th.dataset.key;
-    if(symbolSort.key===key){ symbolSort.dir = symbolSort.dir==='asc'?'desc':'asc'; }
-    else { symbolSort.key=key; symbolSort.dir = (key==='symbol'||key==='name')?'asc':'desc'; }
-    document.querySelectorAll("#tbl-symbol thead th").forEach(x=>x.classList.remove("asc","desc"));
-    th.classList.add(symbolSort.dir);
-    renderSymbolRows();
-  });
-});
-
-// ========= CATEGORY TABLE =========
-const tbodyCategory = document.querySelector("#tbl-category tbody");
-let categorySort = {key:"value", dir:"desc"};
-const openCategories = new Set();
-function renderCategoryRows(){
-  const sorted = categories.slice().sort((a,b)=>{
-    const k=categorySort.key;
-    let av = k==='category' ? a.label : (k==='holdings' ? a.count : a[k==='pnl_pct'?'pnl_pct':k]);
-    let bv = k==='category' ? b.label : (k==='holdings' ? b.count : b[k==='pnl_pct'?'pnl_pct':k]);
-    if(typeof av==='string'){ return categorySort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av); }
-    return categorySort.dir==='asc' ? av-bv : bv-av;
-  });
-  let html = "";
-  for(const c of sorted){
-    const isOpen = openCategories.has(c.key);
-    html += `<tr class="category ${isOpen?'open':''}" data-cat="${c.key}">
-      <td><span class="sym"><span class="caret">▶</span><span class="dot" style="background:${c.color}"></span>${c.label}</span></td>
-      <td>${c.count}</td>
-      <td>${fmtUSD(c.cost)}</td>
-      <td>${fmtUSD(c.value)}</td>
-      <td>${fmtPct(c.pct)}</td>
-      <td class="${c.pnl>=0?'good':'bad'}">${c.pnl>=0?'+':''}${fmtUSD(c.pnl)}</td>
-      <td class="${c.pnl_pct>=0?'good':'bad'}">${c.pnl_pct>=0?'+':''}${c.pnl_pct.toFixed(2)}%</td>
-    </tr>`;
-    if(isOpen){
-      const sortedHoldings = c.holdings.slice().sort((a,b)=>b.value-a.value);
-      for(const h of sortedHoldings){
-        html += `<tr class="child" data-sym="${h.symbol}">
-          <td><span style="opacity:0.7">${h.symbol} · ${h.name}</span></td>
-          <td></td>
-          <td>${fmtUSD(h.cost)}</td>
-          <td>${fmtUSD(h.value)}</td>
-          <td>${fmtPct(h.pct)}</td>
-          <td class="${h.pnl>=0?'good':'bad'}">${h.pnl>=0?'+':''}${fmtUSD(h.pnl)}</td>
-          <td class="${h.pnl_pct>=0?'good':'bad'}">${h.pnl_pct>=0?'+':''}${h.pnl_pct.toFixed(2)}%</td>
-        </tr>`;
+  // ========= CATEGORY TABLE =========
+  const tbodyCategory = document.querySelector('#tbl-category tbody');
+  let categorySort = {key:'value', dir:'desc'};
+  const openCategories = new Set();
+  function renderCategoryRows(){
+    const sorted = categories.slice().sort((a,b)=>{
+      const k=categorySort.key;
+      let av = k==='category' ? a.label : (k==='holdings' ? a.count : a[k==='pnl_pct'?'pnl_pct':k]);
+      let bv = k==='category' ? b.label : (k==='holdings' ? b.count : b[k==='pnl_pct'?'pnl_pct':k]);
+      if(typeof av==='string') return categorySort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+      return categorySort.dir==='asc' ? av-bv : bv-av;
+    });
+    let html = '';
+    for(const c of sorted){
+      const isOpen = openCategories.has(c.key);
+      html += `<tr class="category ${isOpen?'open':''}" data-cat="${c.key}">
+        <td><span class="sym"><span class="caret">\u25b6</span><span class="dot" style="background:${c.color}"></span>${c.label}</span></td>
+        <td>${c.count}</td>
+        <td>${fmtUSD(c.cost)}</td>
+        <td>${fmtUSD(c.value)}</td>
+        <td>${fmtPct(c.pct)}</td>
+        <td class="${c.pnl>=0?'good':'bad'}">${c.pnl>=0?'+':''}${fmtUSD(c.pnl)}</td>
+        <td class="${c.pnl_pct>=0?'good':'bad'}">${c.pnl_pct>=0?'+':''}${c.pnl_pct.toFixed(2)}%</td>
+      </tr>`;
+      if(isOpen){
+        for(const h of c.holdings.slice().sort((a,b)=>b.value-a.value)){
+          html += `<tr class="child" data-sym="${h.symbol}">
+            <td><span style="opacity:0.7">${h.symbol} \u00b7 ${h.name}</span></td>
+            <td></td>
+            <td>${fmtUSD(h.cost)}</td>
+            <td>${fmtUSD(h.value)}</td>
+            <td>${fmtPct(h.pct)}</td>
+            <td class="${h.pnl>=0?'good':'bad'}">${h.pnl>=0?'+':''}${fmtUSD(h.pnl)}</td>
+            <td class="${h.pnl_pct>=0?'good':'bad'}">${h.pnl_pct>=0?'+':''}${h.pnl_pct.toFixed(2)}%</td>
+          </tr>`;
+        }
       }
     }
-  }
-  tbodyCategory.innerHTML = html;
-  tbodyCategory.querySelectorAll("tr.category").forEach(tr=>{
-    tr.addEventListener("click",()=>toggleCategory(tr.dataset.cat, false));
-  });
-}
-function renderCategoryTotals(){
-  document.getElementById("totals-category").innerHTML = `
-    <td>Total</td>
-    <td>${data.rows.length}</td>
-    <td>${fmtUSD(data.total_cost)}</td>
-    <td>${fmtUSD(data.total_value)}</td>
-    <td>100.00%</td>
-    <td class="${pnlTotal>=0?'good':'bad'}">${pnlTotal>=0?'+':''}${fmtUSD(pnlTotal)}</td>
-    <td class="${retTotal>=0?'good':'bad'}">${retTotal>=0?'+':''}${retTotal.toFixed(2)}%</td>`;
-}
-document.querySelectorAll("#tbl-category thead th").forEach(th=>{
-  th.addEventListener("click",()=>{
-    const key = th.dataset.key;
-    if(categorySort.key===key){ categorySort.dir = categorySort.dir==='asc'?'desc':'asc'; }
-    else { categorySort.key=key; categorySort.dir = (key==='category')?'asc':'desc'; }
-    document.querySelectorAll("#tbl-category thead th").forEach(x=>x.classList.remove("asc","desc"));
-    th.classList.add(categorySort.dir);
-    renderCategoryRows();
-  });
-});
-
-function toggleCategory(key, forceOpen){
-  if(forceOpen){ openCategories.add(key); }
-  else if(openCategories.has(key)){ openCategories.delete(key); }
-  else { openCategories.add(key); }
-  renderCategoryRows();
-}
-
-function highlightSymbol(sym){
-  tbodySymbol.querySelectorAll("tr").forEach(tr=>{
-    tr.classList.toggle("active", tr.dataset.sym===sym);
-    if(tr.dataset.sym===sym) tr.scrollIntoView({behavior:"smooth",block:"nearest"});
-  });
-  const idx = data.rows.findIndex(r=>r.symbol===sym);
-  if(idx>=0){ pieSymbol.setActiveElements([{datasetIndex:0,index:idx}]); pieSymbol.update(); }
-}
-
-// ========= TAB SWITCHING =========
-document.querySelectorAll(".tab").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    document.querySelectorAll(".tab").forEach(b=>b.classList.toggle("active", b===btn));
-    const target = btn.dataset.view;
-    document.querySelectorAll(".view").forEach(v=>{
-      v.classList.toggle("active", v.id===`view-${target}`);
+    tbodyCategory.innerHTML = html;
+    tbodyCategory.querySelectorAll('tr.category').forEach(tr=>{
+      tr.addEventListener('click',()=>toggleCategory(tr.dataset.cat, false));
     });
-    // Chart.js needs a resize nudge when a hidden canvas becomes visible
-    if(target==="symbol") pieSymbol.resize();
-    else pieCategory.resize();
+  }
+  function renderCategoryTotals(){
+    document.getElementById('totals-category').innerHTML = `
+      <td>Total</td>
+      <td>${data.rows.length}</td>
+      <td>${fmtUSD(data.total_cost)}</td>
+      <td>${fmtUSD(data.total_value)}</td>
+      <td>100.00%</td>
+      <td class="${pnlTotal>=0?'good':'bad'}">${pnlTotal>=0?'+':''}${fmtUSD(pnlTotal)}</td>
+      <td class="${retTotal>=0?'good':'bad'}">${retTotal>=0?'+':''}${retTotal.toFixed(2)}%</td>`;
+  }
+  document.querySelectorAll('#tbl-category thead th').forEach(th=>{
+    th.addEventListener('click',()=>{
+      const key = th.dataset.key;
+      if(categorySort.key===key) categorySort.dir = categorySort.dir==='asc'?'desc':'asc';
+      else { categorySort.key=key; categorySort.dir = (key==='category')?'asc':'desc'; }
+      document.querySelectorAll('#tbl-category thead th').forEach(x=>x.classList.remove('asc','desc'));
+      th.classList.add(categorySort.dir);
+      renderCategoryRows();
+    });
   });
-});
 
-// Initial render
-renderSymbolRows(); renderSymbolTotals();
-renderCategoryRows(); renderCategoryTotals();
+  function toggleCategory(key, forceOpen){
+    if(forceOpen) openCategories.add(key);
+    else if(openCategories.has(key)) openCategories.delete(key);
+    else openCategories.add(key);
+    renderCategoryRows();
+  }
+
+  function highlightSymbol(sym){
+    tbodySymbol.querySelectorAll('tr').forEach(tr=>{
+      tr.classList.toggle('active', tr.dataset.sym===sym);
+      if(tr.dataset.sym===sym) tr.scrollIntoView({behavior:'smooth',block:'nearest'});
+    });
+    const idx = data.rows.findIndex(r=>r.symbol===sym);
+    if(idx>=0){ pieSymbol.setActiveElements([{datasetIndex:0,index:idx}]); pieSymbol.update(); }
+  }
+
+  // ========= TAB SWITCHING =========
+  document.querySelectorAll('.tab').forEach(btn=>{
+    btn.addEventListener('click',()=>{
+      document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active', b===btn));
+      const target = btn.dataset.view;
+      document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active', v.id===`view-${target}`));
+      if(target==='symbol') pieSymbol.resize(); else pieCategory.resize();
+    });
+  });
+
+  // Initial render
+  renderSymbolRows(); renderSymbolTotals();
+  renderCategoryRows(); renderCategoryTotals();
+})();
 </script>
 </body>
 </html>
