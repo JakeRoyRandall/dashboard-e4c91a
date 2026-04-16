@@ -62,6 +62,7 @@
   .mix > span{display:block;height:100%;float:left}
   .legend-opt{background:#7cc4ff}
   .legend-stk{background:#b98cff}
+  .stale{color:#f0a030;font-size:7px;margin-left:4px;vertical-align:middle;cursor:help}
   .foot{padding:0 28px 28px;color:var(--muted);font-size:12px}
   .view{display:none}
   .view.active{display:block}
@@ -253,17 +254,19 @@ async function fetchPrices(symbols) {
 
 function buildData(prices) {
   const rows = holdings.map(h => {
+    const stkLive = h.shares === 0 || prices?.[h.symbol] != null;
     const price = prices?.[h.symbol] ?? h.fp;
     const stk_val = h.shares * price;
     let opt_val = h.opt;
+    let optLive = h.contracts.length === 0;
     if (h.contracts.length > 0 && prices) {
       const allPriced = h.contracts.every(c => prices[c.occ] != null);
-      if (allPriced) opt_val = h.contracts.reduce((s,c) => s + prices[c.occ] * 100 * c.qty, 0);
+      if (allPriced) { opt_val = h.contracts.reduce((s,c) => s + prices[c.occ] * 100 * c.qty, 0); optLive = true; }
     }
     const value = stk_val + opt_val;
     const pnl = value - h.cost;
     const pnl_pct = h.cost > 0 ? (pnl / h.cost * 100) : 0;
-    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0};
+    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0, stkLive, optLive};
   });
   const total_value = rows.reduce((a,r) => a + r.value, 0);
   const total_cost = rows.reduce((a,r) => a + r.cost, 0);
@@ -375,6 +378,11 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
       if(typeof av==='string') return symbolSort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
       return symbolSort.dir==='asc' ? av-bv : bv-av;
     });
+    const staleTag = r => {
+      if (r.stkLive && r.optLive) return '';
+      const tip = !r.stkLive && !r.optLive ? 'Cached stock + option prices' : !r.stkLive ? 'Cached stock price' : 'Cached option values';
+      return `<span class="stale" title="${tip}">\u25cf</span>`;
+    };
     tbodySymbol.innerHTML = rows.map(r=>{
       const idx = data.rows.findIndex(x=>x.symbol===r.symbol);
       const color = palette[idx % palette.length];
@@ -384,10 +392,10 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
         <td><span class="sym"><span class="dot" style="background:${color}"></span>${r.symbol}</span></td>
         <td>${r.name}</td>
         <td>${fmtUSD(r.cost)}</td>
-        <td>${fmtUSD(r.value)}</td>
+        <td>${fmtUSD(r.value)}${staleTag(r)}</td>
         <td>${fmtPct(r.pct)}</td>
         <td><span class="mix" title="Options ${optPct.toFixed(0)}% / Stock ${stkPct.toFixed(0)}%"><span class="legend-opt" style="width:${optPct}%"></span><span class="legend-stk" style="width:${stkPct}%"></span></span></td>
-        <td class="${r.pnl>=0?'good':'bad'}">${r.pnl>=0?'+':''}${fmtUSD(r.pnl)}</td>
+        <td class="${r.pnl>=0?'good':'bad'}">${r.pnl>=0?'+':''}${fmtUSD(r.pnl)}${staleTag(r)}</td>
         <td class="${r.pnl_pct>=0?'good':'bad'}">${r.pnl_pct>=0?'+':''}${r.pnl_pct.toFixed(2)}%</td>
       </tr>`;
     }).join('');
@@ -430,16 +438,23 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
       if(typeof av==='string') return categorySort.dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
       return categorySort.dir==='asc' ? av-bv : bv-av;
     });
+    const staleTag = r => {
+      if (r.stkLive && r.optLive) return '';
+      const tip = !r.stkLive && !r.optLive ? 'Cached stock + option prices' : !r.stkLive ? 'Cached stock price' : 'Cached option values';
+      return `<span class="stale" title="${tip}">\u25cf</span>`;
+    };
     let html = '';
     for(const c of sorted){
       const isOpen = openCategories.has(c.key);
+      const catStale = c.holdings.some(h => !h.stkLive || !h.optLive);
+      const catTag = catStale ? '<span class="stale" title="Some holdings using cached prices">\u25cf</span>' : '';
       html += `<tr class="category ${isOpen?'open':''}" data-cat="${c.key}">
         <td><span class="sym"><span class="caret">\u25b6</span><span class="dot" style="background:${c.color}"></span>${c.label}</span></td>
         <td>${c.count}</td>
         <td>${fmtUSD(c.cost)}</td>
-        <td>${fmtUSD(c.value)}</td>
+        <td>${fmtUSD(c.value)}${catTag}</td>
         <td>${fmtPct(c.pct)}</td>
-        <td class="${c.pnl>=0?'good':'bad'}">${c.pnl>=0?'+':''}${fmtUSD(c.pnl)}</td>
+        <td class="${c.pnl>=0?'good':'bad'}">${c.pnl>=0?'+':''}${fmtUSD(c.pnl)}${catTag}</td>
         <td class="${c.pnl_pct>=0?'good':'bad'}">${c.pnl_pct>=0?'+':''}${c.pnl_pct.toFixed(2)}%</td>
       </tr>`;
       if(isOpen){
@@ -448,9 +463,9 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
             <td><span style="opacity:0.7">${h.symbol} \u00b7 ${h.name}</span></td>
             <td></td>
             <td>${fmtUSD(h.cost)}</td>
-            <td>${fmtUSD(h.value)}</td>
+            <td>${fmtUSD(h.value)}${staleTag(h)}</td>
             <td>${fmtPct(h.pct)}</td>
-            <td class="${h.pnl>=0?'good':'bad'}">${h.pnl>=0?'+':''}${fmtUSD(h.pnl)}</td>
+            <td class="${h.pnl>=0?'good':'bad'}">${h.pnl>=0?'+':''}${fmtUSD(h.pnl)}${staleTag(h)}</td>
             <td class="${h.pnl_pct>=0?'good':'bad'}">${h.pnl_pct>=0?'+':''}${h.pnl_pct.toFixed(2)}%</td>
           </tr>`;
         }
