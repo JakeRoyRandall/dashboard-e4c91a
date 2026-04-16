@@ -185,8 +185,7 @@ const categoryDef = [
   {key:'crypto',label:'Crypto',color:'#ffa07a',symbols:['HOOD','COIN']},
   {key:'defense',label:'Defense',color:'#66d9ef',symbols:['KRKNF']},
   {key:'cyber',label:'Cybersecurity',color:'#f093fb',symbols:['PANW','CRWD']},
-  {key:'china',label:'China',color:'#84fab0',symbols:['BIDU','BABA']},
-  {key:'other',label:'Other Bets',color:'#ff8a80',symbols:null}
+  {key:'china',label:'China',color:'#84fab0',symbols:['BIDU','BABA']}
 ];
 
 const palette = [
@@ -263,8 +262,11 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
       h.forEach(x => assigned.add(x.symbol));
       return {...c, holdings:h};
     });
-    const other = categoryDef.find(c => !c.symbols);
-    if(other) cats.push({...other, holdings: data.rows.filter(r => !assigned.has(r.symbol))});
+    const leftovers = data.rows.filter(r => !assigned.has(r.symbol));
+    for (const h of leftovers) {
+      const idx = data.rows.findIndex(x => x.symbol === h.symbol);
+      cats.push({key:h.symbol.toLowerCase(), label:h.name, color:palette[idx % palette.length], holdings:[h]});
+    }
     return cats.map(c => {
       const cost = c.holdings.reduce((a,h)=>a+h.cost,0);
       const value = c.holdings.reduce((a,h)=>a+h.value,0);
