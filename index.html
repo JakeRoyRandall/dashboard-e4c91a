@@ -38,7 +38,10 @@
   @media (max-width: 980px){ .grid{grid-template-columns:1fr} }
   .card{background:var(--panel);border:1px solid var(--border);border-radius:14px;padding:18px}
   .card h2{margin:0 0 12px;font-size:14px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;font-weight:600}
-  .chart-wrap{position:relative;min-height:300px}
+  .chart-wrap{position:relative;height:420px}
+  .chart-legend{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px;padding:12px 0 0;font-size:12px}
+  .chart-legend span{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+  .chart-legend .swatch{width:10px;height:10px;border-radius:50%;flex-shrink:0}
   table{width:100%;border-collapse:collapse;font-size:13.5px}
   th,td{padding:9px 10px;text-align:right;border-bottom:1px solid var(--border);white-space:nowrap}
   th:nth-child(1),th:nth-child(2),td:nth-child(1),td:nth-child(2){text-align:left}
@@ -92,6 +95,7 @@
     <div class="card">
       <h2>Allocation by symbol</h2>
       <div class="chart-wrap"><canvas id="pie-symbol"></canvas></div>
+      <div class="chart-legend" id="legend-symbol"></div>
     </div>
     <div class="card">
       <h2>Holdings</h2>
@@ -123,6 +127,7 @@
     <div class="card">
       <h2>Allocation by category</h2>
       <div class="chart-wrap"><canvas id="pie-category"></canvas></div>
+      <div class="chart-legend" id="legend-category"></div>
     </div>
     <div class="card">
       <h2>Categories <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;">— click a row to expand</span></h2>
@@ -364,13 +369,15 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'55%',
       plugins:{
-        legend:{position:'bottom',labels:{color:textColor,boxWidth:10,boxHeight:10,font:{size:11},padding:8,
-          generateLabels:c=>{const ds=c.data.datasets[0]; return c.data.labels.map((lab,i)=>({text:`${lab}  ${data.rows[i].pct.toFixed(1)}%`,fillStyle:ds.backgroundColor[i],strokeStyle:ds.backgroundColor[i],index:i}));}}},
+        legend:{display:false},
         tooltip:{callbacks:{label:ctx=>{const r=data.rows[ctx.dataIndex]; return ` ${r.name} (${r.symbol}): ${fmtUSD(r.value)} \u00b7 ${r.pct.toFixed(2)}%`;}}}
       },
       onClick:(e,el)=>{if(el.length) highlightSymbol(data.rows[el[0].index].symbol);}
     }
   });
+  document.getElementById('legend-symbol').innerHTML = data.rows.map((r,i) =>
+    `<span><span class="swatch" style="background:${symbolColors[i]}"></span>${r.symbol} ${r.pct.toFixed(1)}%</span>`
+  ).join('');
 
   // ========= BY CATEGORY CHART =========
   pieCategory = new Chart(document.getElementById('pie-category').getContext('2d'),{
@@ -382,13 +389,15 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
     options:{
       responsive:true, maintainAspectRatio:false, cutout:'55%',
       plugins:{
-        legend:{position:'bottom',labels:{color:textColor,boxWidth:10,boxHeight:10,font:{size:11},padding:8,
-          generateLabels:c=>{const ds=c.data.datasets[0]; return c.data.labels.map((lab,i)=>({text:`${lab}  ${categories[i].pct.toFixed(1)}%`,fillStyle:ds.backgroundColor[i],strokeStyle:ds.backgroundColor[i],index:i}));}}},
+        legend:{display:false},
         tooltip:{callbacks:{label:ctx=>{const c=categories[ctx.dataIndex]; return ` ${c.label}: ${fmtUSD(c.value)} \u00b7 ${c.pct.toFixed(2)}% \u00b7 ${c.count} holding${c.count===1?'':'s'}`;}}}
       },
       onClick:(e,el)=>{if(el.length) toggleCategory(categories[el[0].index].key, true);}
     }
   });
+  document.getElementById('legend-category').innerHTML = categories.map(c =>
+    `<span><span class="swatch" style="background:${c.color}"></span>${c.label} ${c.pct.toFixed(1)}%</span>`
+  ).join('');
 
   // ========= SYMBOL TABLE =========
   const tbodySymbol = document.querySelector('#tbl-symbol tbody');
