@@ -156,34 +156,34 @@
 // opt = fallback total option value if contract pricing fails.
 const holdings = [
   {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:35.04,opt:0,contracts:[]},
-  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,opt:260184,contracts:[
-    {occ:'MU261218C00250000',qty:6},
-    {occ:'MU270319C00300000',qty:6}
+  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:260184,contracts:[
+    {occ:'MU261218C00250000',qty:6,cost:24072},
+    {occ:'MU270319C00300000',qty:6,cost:59071}
   ]},
-  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:332.77,opt:91530,contracts:[
-    {occ:'GOOG281215C00400000',qty:6},
-    {occ:'GOOG271217C00300000',qty:6}
+  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:332.77,sc:36891.65,opt:91530,contracts:[
+    {occ:'GOOG281215C00400000',qty:6,cost:34315},
+    {occ:'GOOG271217C00300000',qty:6,cost:8436}
   ]},
-  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:198.35,opt:86950,contracts:[
-    {occ:'NVDA271217C00200000',qty:10},
-    {occ:'NVDA270319C00180000',qty:5},
-    {occ:'NVDA270115C00200000',qty:5}
+  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:198.35,sc:36642.80,opt:86950,contracts:[
+    {occ:'NVDA271217C00200000',qty:10,cost:43599},
+    {occ:'NVDA270319C00180000',qty:5,cost:18725},
+    {occ:'NVDA270115C00200000',qty:5,cost:16697}
   ]},
   {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:86.85,opt:0,contracts:[]},
-  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:24.43,opt:19880,contracts:[
-    {occ:'GLXY270115C00040000',qty:25},
-    {occ:'GLXY270115C00030000',qty:20}
+  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:24.43,sc:22960,opt:19880,contracts:[
+    {occ:'GLXY270115C00040000',qty:25,cost:22710},
+    {occ:'GLXY270115C00030000',qty:20,cost:18650}
   ]},
-  {symbol:'CRWV',name:'Coreweave',cost:56983,shares:400,fp:119.56,opt:23000,contracts:[
-    {occ:'CRWV270319C00075000',qty:4}
+  {symbol:'CRWV',name:'Coreweave',cost:56983,shares:400,fp:119.56,sc:46519,opt:23000,contracts:[
+    {occ:'CRWV270319C00075000',qty:4,cost:10464}
   ]},
   {symbol:'COIN',name:'Coinbase',cost:77014,shares:400,fp:199.82,opt:0,contracts:[]},
   {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:38048,contracts:[
     {occ:'AMZN281215C00200000',qty:4}
   ]},
-  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,opt:36287,contracts:[
-    {occ:'META281215C00650000',qty:1},
-    {occ:'META270319C00600000',qty:1}
+  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,sc:0,opt:36287,contracts:[
+    {occ:'META281215C00650000',qty:1,cost:20190},
+    {occ:'META270319C00600000',qty:1,cost:8651}
   ]},
   {symbol:'ORCL',name:'Oracle',cost:32018,shares:200,fp:178.34,opt:0,contracts:[]},
   {symbol:'RKLB',name:'Rocketlab',cost:29012,shares:400,fp:82.93,opt:0,contracts:[]},
@@ -252,6 +252,15 @@ async function fetchPrices(symbols) {
   return Object.keys(prices).length > 0 ? prices : null;
 }
 
+const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function fmtOCC(occ, qty) {
+  const m = occ.match(/^([A-Z]+)(\d{2})(\d{2})(\d{2})([CP])(\d{8})$/);
+  if (!m) return occ;
+  const [,, yy, mm,, type, strikeRaw] = m;
+  const strike = parseInt(strikeRaw) / 1000;
+  return `${qty}x ${months[parseInt(mm)-1]} 20${yy} $${strike} ${type==='C'?'Call':'Put'}`;
+}
+
 function buildData(prices) {
   const rows = holdings.map(h => {
     const stkLive = h.shares === 0 || prices?.[h.symbol] != null;
@@ -266,7 +275,23 @@ function buildData(prices) {
     const value = stk_val + opt_val;
     const pnl = value - h.cost;
     const pnl_pct = h.cost > 0 ? (pnl / h.cost * 100) : 0;
-    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0, stkLive, optLive};
+    const expandable = (h.shares > 0 && h.contracts.length > 0) || h.contracts.length > 1;
+    const positions = [];
+    if (expandable) {
+      if (h.shares > 0) {
+        const sc = h.sc ?? h.cost;
+        const sp = stk_val - sc;
+        positions.push({label:`${h.shares} shares`, cost:sc, value:stk_val, pnl:sp, pnl_pct:sc?sp/sc*100:0, live:stkLive});
+      }
+      for (const c of h.contracts) {
+        const cp = prices?.[c.occ];
+        const cv = cp != null ? cp * 100 * c.qty : null;
+        const cpnl = cv != null && c.cost != null ? cv - c.cost : null;
+        const cpct = cpnl != null && c.cost ? cpnl / c.cost * 100 : null;
+        positions.push({label:fmtOCC(c.occ, c.qty), cost:c.cost, value:cv, pnl:cpnl, pnl_pct:cpct, live:cp!=null});
+      }
+    }
+    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0, stkLive, optLive, expandable, positions};
   });
   const total_value = rows.reduce((a,r) => a + r.value, 0);
   const total_cost = rows.reduce((a,r) => a + r.cost, 0);
@@ -370,6 +395,7 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
   // ========= SYMBOL TABLE =========
   const tbodySymbol = document.querySelector('#tbl-symbol tbody');
   let symbolSort = {key:'value', dir:'desc'};
+  const openSymbols = new Set();
   function renderSymbolRows(){
     const rows = data.rows.slice().sort((a,b)=>{
       const k=symbolSort.key;
@@ -383,13 +409,17 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
       const tip = !r.stkLive && !r.optLive ? 'Cached stock + option prices' : !r.stkLive ? 'Cached stock price' : 'Cached option values';
       return `<span class="stale" title="${tip}">\u25cf</span>`;
     };
-    tbodySymbol.innerHTML = rows.map(r=>{
+    const posStale = p => p.live ? '' : '<span class="stale" title="Cached price">\u25cf</span>';
+    let html = '';
+    for (const r of rows) {
       const idx = data.rows.findIndex(x=>x.symbol===r.symbol);
       const color = palette[idx % palette.length];
       const optPct = r.value>0 ? r.opt_val/r.value*100 : 0;
       const stkPct = 100-optPct;
-      return `<tr data-sym="${r.symbol}">
-        <td><span class="sym"><span class="dot" style="background:${color}"></span>${r.symbol}</span></td>
+      const isOpen = openSymbols.has(r.symbol);
+      const caret = r.expandable ? `<span class="caret">\u25b6</span>` : '';
+      html += `<tr data-sym="${r.symbol}" class="${r.expandable?'category':''}${isOpen?' open':''}">
+        <td><span class="sym">${caret}<span class="dot" style="background:${color}"></span>${r.symbol}</span></td>
         <td>${r.name}</td>
         <td>${fmtUSD(r.cost)}</td>
         <td>${fmtUSD(r.value)}${staleTag(r)}</td>
@@ -398,8 +428,32 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
         <td class="${r.pnl>=0?'good':'bad'}">${r.pnl>=0?'+':''}${fmtUSD(r.pnl)}${staleTag(r)}</td>
         <td class="${r.pnl_pct>=0?'good':'bad'}">${r.pnl_pct>=0?'+':''}${r.pnl_pct.toFixed(2)}%</td>
       </tr>`;
-    }).join('');
-    tbodySymbol.querySelectorAll('tr').forEach(tr=>{
+      if (isOpen) {
+        for (const p of r.positions) {
+          const pv = p.value != null ? fmtUSD(p.value) : '\u2014';
+          const pp = p.pnl != null ? `${p.pnl>=0?'+':''}${fmtUSD(p.pnl)}` : '\u2014';
+          const ppct = p.pnl_pct != null ? `${p.pnl_pct>=0?'+':''}${p.pnl_pct.toFixed(2)}%` : '\u2014';
+          const pcls = p.pnl != null ? (p.pnl>=0?'good':'bad') : '';
+          html += `<tr class="child">
+            <td colspan="2"><span style="opacity:0.7">${p.label}</span></td>
+            <td>${p.cost != null ? fmtUSD(p.cost) : '\u2014'}</td>
+            <td>${pv}${p.value!=null?posStale(p):''}</td>
+            <td></td><td></td>
+            <td class="${pcls}">${pp}</td>
+            <td class="${pcls}">${ppct}</td>
+          </tr>`;
+        }
+      }
+    }
+    tbodySymbol.innerHTML = html;
+    tbodySymbol.querySelectorAll('tr.category').forEach(tr=>{
+      tr.addEventListener('click',()=>{
+        const sym = tr.dataset.sym;
+        if (openSymbols.has(sym)) openSymbols.delete(sym); else openSymbols.add(sym);
+        renderSymbolRows();
+      });
+    });
+    tbodySymbol.querySelectorAll('tr:not(.category):not(.child)').forEach(tr=>{
       tr.addEventListener('click',()=>highlightSymbol(tr.dataset.sym));
     });
   }
