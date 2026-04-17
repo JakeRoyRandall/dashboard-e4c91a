@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1" />
 <title>Combined Portfolio — % of Value</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
 <style>
   :root{
     --bg:#0b0d12; --panel:#13161d; --text:#e7eaf0; --muted:#9aa3b2;
@@ -370,6 +371,7 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
       responsive:true, maintainAspectRatio:false, cutout:'55%',
       plugins:{
         legend:{display:false},
+        datalabels:{display:ctx=>ctx.dataIndex<8,color:'#fff',font:{weight:'bold',size:11},formatter:(_,ctx)=>data.rows[ctx.dataIndex].symbol},
         tooltip:{callbacks:{label:ctx=>{const r=data.rows[ctx.dataIndex]; return ` ${r.name} (${r.symbol}): ${fmtUSD(r.value)} \u00b7 ${r.pct.toFixed(2)}%`;}}}
       },
       onClick:(e,el)=>{if(el.length) highlightSymbol(data.rows[el[0].index].symbol);}
@@ -390,6 +392,7 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
       responsive:true, maintainAspectRatio:false, cutout:'55%',
       plugins:{
         legend:{display:false},
+        datalabels:{display:false},
         tooltip:{callbacks:{label:ctx=>{const c=categories[ctx.dataIndex]; return ` ${c.label}: ${fmtUSD(c.value)} \u00b7 ${c.pct.toFixed(2)}% \u00b7 ${c.count} holding${c.count===1?'':'s'}`;}}}
       },
       onClick:(e,el)=>{if(el.length) toggleCategory(categories[el[0].index].key, true);}
