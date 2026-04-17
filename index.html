@@ -63,7 +63,6 @@
   .legend-opt{background:#7cc4ff}
   .legend-stk{background:#b98cff}
   .stale{color:#f0a030;font-size:7px;margin-left:4px;vertical-align:middle;cursor:help}
-  .foot{padding:0 28px 28px;color:var(--muted);font-size:12px}
   .view{display:none}
   .view.active{display:block}
 </style>
@@ -96,7 +95,7 @@
     </div>
     <div class="card">
       <h2>Holdings</h2>
-      <div style="overflow:auto;max-height:620px">
+      <div>
         <table id="tbl-symbol">
           <thead>
             <tr>
@@ -127,7 +126,7 @@
     </div>
     <div class="card">
       <h2>Categories <span style="font-weight:400;color:var(--muted);text-transform:none;letter-spacing:0;">— click a row to expand</span></h2>
-      <div style="overflow:auto;max-height:620px">
+      <div>
         <table id="tbl-category">
           <thead>
             <tr>
@@ -148,7 +147,6 @@
   </div>
 </section>
 
-<div class="foot">Tip: click a column header to sort, click a slice / row to highlight, or expand a category to see its holdings.</div>
 
 <script>
 // ============ HOLDINGS — shares + option contracts ============
