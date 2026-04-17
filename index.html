@@ -179,7 +179,7 @@ const holdings = [
   ]},
   {symbol:'COIN',name:'Coinbase',cost:77014,shares:400,fp:199.82,opt:0,contracts:[]},
   {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:38048,contracts:[
-    {occ:'AMZN281215C00200000',qty:4}
+    {occ:'AMZN281215C00200000',qty:4,cost:27997}
   ]},
   {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,sc:0,opt:36287,contracts:[
     {occ:'META281215C00650000',qty:1,cost:20190},
@@ -189,19 +189,19 @@ const holdings = [
   {symbol:'RKLB',name:'Rocketlab',cost:29012,shares:400,fp:82.93,opt:0,contracts:[]},
   {symbol:'KRKNF',name:'Kraken Robotics',cost:25500,shares:5000,fp:6.47,opt:0,contracts:[]},
   {symbol:'AAPL',name:'Apple',cost:25115,shares:0,fp:0,opt:25785,contracts:[
-    {occ:'AAPL260717C00260000',qty:15}
+    {occ:'AAPL260717C00260000',qty:15,cost:25115}
   ]},
   {symbol:'NBIS',name:'Nebius',cost:9717,shares:0,fp:0,opt:24479,contracts:[
-    {occ:'NBIS270115C00100000',qty:3}
+    {occ:'NBIS270115C00100000',qty:3,cost:9717}
   ]},
   {symbol:'RDW',name:'Redwire',cost:21200,shares:0,fp:0,opt:26000,contracts:[
-    {occ:'RDW270115C00008000',qty:50}
+    {occ:'RDW270115C00008000',qty:50,cost:21200}
   ]},
   {symbol:'LUNR',name:'Intuitive Machines',cost:21056,shares:0,fp:0,opt:24000,contracts:[
-    {occ:'LUNR270115C00020000',qty:20}
+    {occ:'LUNR270115C00020000',qty:20,cost:21056}
   ]},
   {symbol:'MSFT',name:'Microsoft',cost:11418,shares:0,fp:0,opt:20579,contracts:[
-    {occ:'MSFT270319C00400000',qty:3}
+    {occ:'MSFT270319C00400000',qty:3,cost:11418}
   ]},
   {symbol:'PANW',name:'Palo Alto Networks',cost:33499,shares:200,fp:166.97,opt:0,contracts:[]},
   {symbol:'CRWD',name:'CrowdStrike',cost:42018,shares:100,fp:418.2,opt:0,contracts:[]},
@@ -275,7 +275,7 @@ function buildData(prices) {
     const value = stk_val + opt_val;
     const pnl = value - h.cost;
     const pnl_pct = h.cost > 0 ? (pnl / h.cost * 100) : 0;
-    const expandable = (h.shares > 0 && h.contracts.length > 0) || h.contracts.length > 1;
+    const expandable = h.shares > 0 || h.contracts.length > 0;
     const positions = [];
     if (expandable) {
       if (h.shares > 0) {
