@@ -1,8 +1,8 @@
 name: Update fallback prices
 on:
   schedule:
-    - cron: '*/15 13-20 * * 1-5' # every 15 min, 9am-4:45pm ET weekdays (market hours + 45m buffer)
-    - cron: '5 21 * * 1-5'       # final 4:05pm ET snapshot after close
+    - cron: '* 13-20 * * 1-5' # every minute, 9am-4:45pm ET weekdays
+    - cron: '5 21 * * 1-5'    # final 4:05pm ET snapshot after close
   workflow_dispatch: # manual trigger from GitHub UI
 
 permissions:
