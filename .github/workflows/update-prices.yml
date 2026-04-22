@@ -1,7 +1,8 @@
 name: Update fallback prices
 on:
   schedule:
-    - cron: '0 21 * * 1-5' # 4pm ET (9pm UTC) weekdays, after market close
+    - cron: '*/15 13-20 * * 1-5' # every 15 min, 9am-4:45pm ET weekdays (market hours + 45m buffer)
+    - cron: '5 21 * * 1-5'       # final 4:05pm ET snapshot after close
   workflow_dispatch: # manual trigger from GitHub UI
 
 permissions:
@@ -35,7 +36,7 @@ jobs:
                   if shares > 0:
                       stock_lines[sym] = i
 
-              for occ, qty in re.findall(r"\{occ:'([^']+)',qty:(\d+)\}", line):
+              for occ, qty in re.findall(r"\{occ:'([^']+)',qty:(\d+)", line):
                   if current_sym:
                       contracts.setdefault(current_sym, []).append((occ, int(qty)))
 
