@@ -155,9 +155,12 @@
 
 
 <script>
+// ============ SNAPSHOT TIMESTAMP (written by update-prices workflow) ============
+const LAST_UPDATED = '';
+
 // ============ HOLDINGS — shares + option contracts ============
-// Stock values and option values both update live via Yahoo Finance.
-// opt = fallback total option value if contract pricing fails.
+// fp/mark/opt are updated every minute by the update-prices workflow from
+// Alpaca real-time bid/ask quotes. No client-side price fetching.
 const holdings = [
   {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:36.68,opt:0,contracts:[]},
   {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:279408,contracts:[
@@ -236,28 +239,6 @@ const fmtUSD = v => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{max
 const fmtUSD2 = v => (v<0?'-':'') + '$' + Math.abs(v).toLocaleString('en-US',{minimumFractionDigits:2,maximumFractionDigits:2});
 const fmtPct = v => v.toFixed(2) + '%';
 
-// ============ PRICE FETCHING ============
-async function fetchPrices(symbols) {
-  const prices = {};
-  const unique = [...new Set(symbols)];
-  await Promise.allSettled(unique.map(async sym => {
-    const urls = [
-      `https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`,
-      `https://corsproxy.io/?${encodeURIComponent(`https://query1.finance.yahoo.com/v8/finance/chart/${sym}?interval=1d&range=1d`)}`
-    ];
-    for (const url of urls) {
-      try {
-        const res = await fetch(url);
-        if (!res.ok) continue;
-        const d = await res.json();
-        const p = d?.chart?.result?.[0]?.meta?.regularMarketPrice;
-        if (p) { prices[sym] = p; return; }
-      } catch {}
-    }
-  }));
-  return Object.keys(prices).length > 0 ? prices : null;
-}
-
 const months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function fmtOCC(occ, qty) {
   const m = occ.match(/^([A-Z]+)(\d{2})(\d{2})(\d{2})([CP])(\d{8})$/);
@@ -267,19 +248,15 @@ function fmtOCC(occ, qty) {
   return `${qty}x ${months[parseInt(mm)-1]} 20${yy} $${strike} ${type==='C'?'Call':'Put'}`;
 }
 
-function buildData(prices) {
+function buildData() {
+  // All prices come from the committed snapshot (refreshed every minute by the
+  // workflow using Alpaca real-time bid/ask). No client-side fetching.
   const rows = holdings.map(h => {
-    const stkLive = h.shares === 0 || prices?.[h.symbol] != null;
-    const price = prices?.[h.symbol] ?? h.fp;
-    const stk_val = h.shares * price;
-    // Option values come from each contract's committed `mark` (bid/ask mid,
-    // refreshed by the price-update script). If mark is missing on any contract
-    // fall back to the aggregate `opt` on the holding.
+    const stk_val = h.shares * h.fp;
     const allMarked = h.contracts.length > 0 && h.contracts.every(c => typeof c.mark === 'number');
     const opt_val = allMarked
       ? h.contracts.reduce((s,c) => s + c.mark * 100 * c.qty, 0)
       : h.opt;
-    const optLive = true; // option values are always the latest snapshot
     const value = stk_val + opt_val;
     const pnl = value - h.cost;
     const pnl_pct = h.cost > 0 ? (pnl / h.cost * 100) : 0;
@@ -289,7 +266,7 @@ function buildData(prices) {
       if (h.shares > 0) {
         const sc = h.sc ?? h.cost;
         const sp = stk_val - sc;
-        positions.push({label:`${h.shares} shares`, cost:sc, value:stk_val, pnl:sp, pnl_pct:sc?sp/sc*100:0, live:stkLive});
+        positions.push({label:`${h.shares} shares`, cost:sc, value:stk_val, pnl:sp, pnl_pct:sc?sp/sc*100:0, live:true});
       }
       for (const c of h.contracts) {
         const cv = typeof c.mark === 'number' ? c.mark * 100 * c.qty : null;
@@ -298,7 +275,7 @@ function buildData(prices) {
         positions.push({label:fmtOCC(c.occ, c.qty), cost:c.cost, value:cv, pnl:cpnl, pnl_pct:cpct, live:true});
       }
     }
-    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0, stkLive, optLive, expandable, positions};
+    return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0, stkLive:true, optLive:true, expandable, positions};
   });
   const total_value = rows.reduce((a,r) => a + r.value, 0);
   const total_cost = rows.reduce((a,r) => a + r.cost, 0);
@@ -311,22 +288,15 @@ function buildData(prices) {
 let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
 
 // ============ INIT ============
-(async function init() {
-  // Only fetch stock prices live. Yahoo's regularMarketPrice for options is
-  // last-trade, which for illiquid contracts can be hours/days stale and
-  // materially wrong vs the bid/ask mid. Option values come from the committed
-  // opt: fallbacks (refreshed by the GH Action using bid/ask mid when available).
-  const stockSymbols = holdings.filter(h => h.shares > 0).map(h => h.symbol);
-  const prices = await fetchPrices(stockSymbols);
-  const isLive = !!prices;
-  data = buildData(prices);
+(function init() {
+  data = buildData();
 
   const statusEl = document.getElementById('status');
-  if (isLive) {
-    const t = new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-    statusEl.textContent = `Live stock prices \u00b7 option values from latest snapshot \u00b7 updated ${t}`;
+  if (typeof LAST_UPDATED === 'string') {
+    const t = new Date(LAST_UPDATED).toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+    statusEl.textContent = `Prices from Alpaca \u00b7 snapshot ${t}`;
   } else {
-    statusEl.textContent = 'Cached prices (Yahoo fetch failed)';
+    statusEl.textContent = 'Prices from Alpaca snapshot';
   }
 
   // Build categories

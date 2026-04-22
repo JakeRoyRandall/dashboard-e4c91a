@@ -112,9 +112,19 @@ jobs:
                           lines[i] = new; changed = True
                       break
 
+          # Always update the snapshot timestamp
+          import datetime
+          ts = datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+          for i, line in enumerate(lines):
+              if line.startswith("const LAST_UPDATED = "):
+                  new = f"const LAST_UPDATED = '{ts}';\n"
+                  if new != lines[i]:
+                      lines[i] = new; changed = True
+                  break
+
           if changed:
               with open("index.html", "w") as f: f.writelines(lines)
-              print("Updated.")
+              print(f"Updated. snapshot={ts}")
           else:
               print("No changes.")
           PYEOF
