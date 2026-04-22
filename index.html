@@ -160,52 +160,52 @@
 // opt = fallback total option value if contract pricing fails.
 const holdings = [
   {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:36.11,opt:0,contracts:[]},
-  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:268920,contracts:[
-    {occ:'MU261218C00250000',qty:6,cost:24072},
-    {occ:'MU270319C00300000',qty:6,cost:59071}
+  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:262950,contracts:[
+    {occ:'MU261218C00250000',qty:6,cost:24072,mark:231.65},
+    {occ:'MU270319C00300000',qty:6,cost:59071,mark:206.6}
   ]},
-  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:335.54,sc:36891.65,opt:91848,contracts:[
-    {occ:'GOOG281215C00400000',qty:6,cost:34315},
-    {occ:'GOOG271217C00300000',qty:6,cost:8436}
+  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:335.54,sc:36891.65,opt:92688,contracts:[
+    {occ:'GOOG281215C00400000',qty:6,cost:34315,mark:66.33},
+    {occ:'GOOG271217C00300000',qty:6,cost:8436,mark:88.15}
   ]},
-  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:199.96,sc:36642.80,opt:89375,contracts:[
-    {occ:'NVDA271217C00200000',qty:10,cost:43599},
-    {occ:'NVDA270319C00180000',qty:5,cost:18725},
-    {occ:'NVDA270115C00200000',qty:5,cost:16697}
+  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:199.96,sc:36642.80,opt:88415,contracts:[
+    {occ:'NVDA271217C00200000',qty:10,cost:43599,mark:50.1},
+    {occ:'NVDA270319C00180000',qty:5,cost:18725,mark:45.83},
+    {occ:'NVDA270115C00200000',qty:5,cost:16697,mark:30.8}
   ]},
   {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:89.53,opt:0,contracts:[]},
-  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:26.13,sc:22960,opt:46920,contracts:[
-    {occ:'GLXY270115C00025000',qty:40,cost:22710},
-    {occ:'GLXY270115C00030000',qty:20,cost:18650}
+  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:26.13,sc:22960,opt:46840,contracts:[
+    {occ:'GLXY270115C00025000',qty:40,cost:22710,mark:8.4},
+    {occ:'GLXY270115C00030000',qty:20,cost:18650,mark:6.62}
   ]},
-  {symbol:'CRWV',name:'Coreweave',cost:56983,shares:400,fp:119.61,sc:46519,opt:23432,contracts:[
-    {occ:'CRWV270319C00075000',qty:4,cost:10464}
+  {symbol:'CRWV',name:'Coreweave',cost:56983,shares:400,fp:119.61,sc:46519,opt:22952,contracts:[
+    {occ:'CRWV270319C00075000',qty:4,cost:10464,mark:57.38}
   ]},
   {symbol:'COIN',name:'Coinbase',cost:77014,shares:400,fp:209.78,opt:0,contracts:[]},
-  {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:38680,contracts:[
-    {occ:'AMZN281215C00200000',qty:4,cost:27997}
+  {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:38940,contracts:[
+    {occ:'AMZN281215C00200000',qty:4,cost:27997,mark:97.35}
   ]},
-  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,sc:0,opt:35415,contracts:[
-    {occ:'META281215C00650000',qty:1,cost:20190},
-    {occ:'META270319C00600000',qty:1,cost:8651}
+  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,sc:0,opt:35368,contracts:[
+    {occ:'META281215C00650000',qty:1,cost:20190,mark:207.03},
+    {occ:'META270319C00600000',qty:1,cost:8651,mark:146.65}
   ]},
   {symbol:'ORCL',name:'Oracle',cost:32018,shares:200,fp:186.0,opt:0,contracts:[]},
   {symbol:'RKLB',name:'Rocketlab',cost:29012,shares:400,fp:91.5,opt:0,contracts:[]},
   {symbol:'KRKNF',name:'Kraken Robotics',cost:25500,shares:5000,fp:6.27,opt:0,contracts:[]},
   {symbol:'AAPL',name:'Apple',cost:25115,shares:0,fp:0,opt:30180,contracts:[
-    {occ:'AAPL260717C00260000',qty:15,cost:25115}
+    {occ:'AAPL260717C00260000',qty:15,cost:25115,mark:20.12}
   ]},
-  {symbol:'NBIS',name:'Nebius',cost:9717,shares:0,fp:0,opt:23475,contracts:[
-    {occ:'NBIS270115C00100000',qty:3,cost:9717}
+  {symbol:'NBIS',name:'Nebius',cost:9717,shares:0,fp:0,opt:22895,contracts:[
+    {occ:'NBIS270115C00100000',qty:3,cost:9717,mark:76.32}
   ]},
-  {symbol:'RDW',name:'Redwire',cost:21200,shares:0,fp:0,opt:30000,contracts:[
-    {occ:'RDW270115C00008000',qty:50,cost:21200}
+  {symbol:'RDW',name:'Redwire',cost:21200,shares:0,fp:0,opt:30750,contracts:[
+    {occ:'RDW270115C00008000',qty:50,cost:21200,mark:6.15}
   ]},
-  {symbol:'LUNR',name:'Intuitive Machines',cost:21056,shares:0,fp:0,opt:30500,contracts:[
-    {occ:'LUNR270115C00020000',qty:20,cost:21056}
+  {symbol:'LUNR',name:'Intuitive Machines',cost:21056,shares:0,fp:0,opt:30760,contracts:[
+    {occ:'LUNR270115C00020000',qty:20,cost:21056,mark:15.38}
   ]},
-  {symbol:'MSFT',name:'Microsoft',cost:11418,shares:0,fp:0,opt:21720,contracts:[
-    {occ:'MSFT270319C00400000',qty:3,cost:11418}
+  {symbol:'MSFT',name:'Microsoft',cost:11418,shares:0,fp:0,opt:21540,contracts:[
+    {occ:'MSFT270319C00400000',qty:3,cost:11418,mark:71.8}
   ]},
   {symbol:'PANW',name:'Palo Alto Networks',cost:33499,shares:200,fp:178.25,opt:0,contracts:[]},
   {symbol:'CRWD',name:'CrowdStrike',cost:42018,shares:100,fp:460.7,opt:0,contracts:[]},
@@ -272,12 +272,14 @@ function buildData(prices) {
     const stkLive = h.shares === 0 || prices?.[h.symbol] != null;
     const price = prices?.[h.symbol] ?? h.fp;
     const stk_val = h.shares * price;
-    let opt_val = h.opt;
-    let optLive = h.contracts.length === 0;
-    if (h.contracts.length > 0 && prices) {
-      const allPriced = h.contracts.every(c => prices[c.occ] != null);
-      if (allPriced) { opt_val = h.contracts.reduce((s,c) => s + prices[c.occ] * 100 * c.qty, 0); optLive = true; }
-    }
+    // Option values come from each contract's committed `mark` (bid/ask mid,
+    // refreshed by the price-update script). If mark is missing on any contract
+    // fall back to the aggregate `opt` on the holding.
+    const allMarked = h.contracts.length > 0 && h.contracts.every(c => typeof c.mark === 'number');
+    const opt_val = allMarked
+      ? h.contracts.reduce((s,c) => s + c.mark * 100 * c.qty, 0)
+      : h.opt;
+    const optLive = true; // option values are always the latest snapshot
     const value = stk_val + opt_val;
     const pnl = value - h.cost;
     const pnl_pct = h.cost > 0 ? (pnl / h.cost * 100) : 0;
@@ -290,11 +292,10 @@ function buildData(prices) {
         positions.push({label:`${h.shares} shares`, cost:sc, value:stk_val, pnl:sp, pnl_pct:sc?sp/sc*100:0, live:stkLive});
       }
       for (const c of h.contracts) {
-        const cp = prices?.[c.occ];
-        const cv = cp != null ? cp * 100 * c.qty : null;
+        const cv = typeof c.mark === 'number' ? c.mark * 100 * c.qty : null;
         const cpnl = cv != null && c.cost != null ? cv - c.cost : null;
         const cpct = cpnl != null && c.cost ? cpnl / c.cost * 100 : null;
-        positions.push({label:fmtOCC(c.occ, c.qty), cost:c.cost, value:cv, pnl:cpnl, pnl_pct:cpct, live:cp!=null});
+        positions.push({label:fmtOCC(c.occ, c.qty), cost:c.cost, value:cv, pnl:cpnl, pnl_pct:cpct, live:true});
       }
     }
     return {symbol:h.symbol, name:h.name, cost:h.cost, value, pnl, pnl_pct, opt_val, stk_val, pct:0, stkLive, optLive, expandable, positions};
@@ -311,18 +312,21 @@ let data, categories, pieSymbol, pieCategory, pnlTotal, retTotal;
 
 // ============ INIT ============
 (async function init() {
-  const allSymbols = holdings.map(h => h.symbol);
-  const allContracts = holdings.flatMap(h => h.contracts.map(c => c.occ));
-  const prices = await fetchPrices([...allSymbols, ...allContracts]);
+  // Only fetch stock prices live. Yahoo's regularMarketPrice for options is
+  // last-trade, which for illiquid contracts can be hours/days stale and
+  // materially wrong vs the bid/ask mid. Option values come from the committed
+  // opt: fallbacks (refreshed by the GH Action using bid/ask mid when available).
+  const stockSymbols = holdings.filter(h => h.shares > 0).map(h => h.symbol);
+  const prices = await fetchPrices(stockSymbols);
   const isLive = !!prices;
   data = buildData(prices);
 
   const statusEl = document.getElementById('status');
   if (isLive) {
     const t = new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
-    statusEl.textContent = `Live prices \u00b7 stocks + options \u00b7 updated ${t}`;
+    statusEl.textContent = `Live stock prices \u00b7 option values from latest snapshot \u00b7 updated ${t}`;
   } else {
-    statusEl.textContent = 'Options + stocks \u00b7 cached prices (Apr 16, 2026)';
+    statusEl.textContent = 'Cached prices (Yahoo fetch failed)';
   }
 
   // Build categories

@@ -49,23 +49,18 @@ jobs:
           for cs in contracts.values():
               tickers.update(occ for occ, _ in cs)
 
-          # yfinance handles Yahoo's crumb/auth dance. For each ticker we prefer
-          # mid (bid+ask)/2 for options (last trade is often stale on illiquid
-          # contracts), falling back to last price.
+          # yfinance handles Yahoo's crumb/auth dance. For options we prefer mid
+          # (bid+ask)/2 since last trade is often stale on illiquid contracts;
+          # fall back to last price if bid/ask unavailable.
           prices = {}
           option_syms = {occ for cs in contracts.values() for occ, _ in cs}
 
-          option_list = sorted(option_syms)
-          stock_list = sorted(stock_lines.keys())
-          all_syms = option_list + stock_list
-
-          tickers = yf.Tickers(" ".join(all_syms))
-          for ticker in all_syms:
+          for ticker in sorted(option_syms | set(stock_lines.keys())):
               try:
-                  info = tickers.tickers[ticker].fast_info
-                  bid = getattr(info, "bid", None) or 0
-                  ask = getattr(info, "ask", None) or 0
-                  last = getattr(info, "last_price", None) or 0
+                  info = yf.Ticker(ticker).info
+                  bid = info.get("bid") or 0
+                  ask = info.get("ask") or 0
+                  last = info.get("regularMarketPrice") or 0
                   is_option = ticker in option_syms
                   if is_option and bid > 0 and ask > 0:
                       prices[ticker] = round((bid + ask) / 2, 2)
@@ -90,18 +85,30 @@ jobs:
                   lines[idx] = new
                   changed = True
 
-          # Update opt (option fallback total) for symbols with contracts
+          # Update mark: on each contract line and opt: aggregate on each
+          # holding header. The client reads mark: per contract (authoritative);
+          # opt: is kept as a fallback aggregate for compat.
+          def replace_contract(m):
+              occ, qty, rest = m.group(1), m.group(2), m.group(3)
+              rest_clean = re.sub(r",mark:[\d.]+", "", rest)
+              if occ in prices:
+                  return f"{{occ:'{occ}',qty:{qty}{rest_clean},mark:{prices[occ]}}}"
+              return m.group(0)
+
+          for i, line in enumerate(lines):
+              if "occ:'" not in line: continue
+              new = re.sub(r"\{occ:'([^']+)',qty:(\d+)((?:,[a-z]+:[\d.]+)*)\}", replace_contract, line)
+              if new != line:
+                  lines[i] = new
+                  changed = True
+
           for sym, cs in contracts.items():
-              if not cs:
-                  continue
-              if not all(prices.get(occ) for occ, _ in cs):
-                  continue
+              if not cs or not all(prices.get(occ) for occ, _ in cs): continue
               new_opt = int(sum(prices[occ] * 100 * qty for occ, qty in cs))
               for i, line in enumerate(lines):
                   if f"symbol:'{sym}'" in line:
-                      old = lines[i]
-                      new = re.sub(r"opt:\d+", f"opt:{new_opt}", old)
-                      if old != new:
+                      new = re.sub(r"opt:\d+", f"opt:{new_opt}", lines[i])
+                      if new != lines[i]:
                           lines[i] = new
                           changed = True
                       break
