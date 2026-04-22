@@ -52,12 +52,22 @@ jobs:
           cj = http.cookiejar.CookieJar()
           opener = urllib.request.build_opener(urllib.request.HTTPCookieProcessor(cj))
           opener.addheaders = [("User-Agent", UA)]
-          try:
-              opener.open("https://fc.yahoo.com", timeout=15).read()
-              crumb = opener.open("https://query1.finance.yahoo.com/v1/test/getcrumb", timeout=15).read().decode()
-          except Exception as e:
-              print(f"Crumb fetch failed: {e}")
-              crumb = ""
+          crumb = ""
+          for seed in ["https://finance.yahoo.com/quote/AAPL", "https://finance.yahoo.com", "https://login.yahoo.com"]:
+              try:
+                  opener.open(seed, timeout=15).read()
+              except Exception as e:
+                  print(f"Cookie seed {seed} failed: {e}")
+                  continue
+              try:
+                  crumb = opener.open("https://query1.finance.yahoo.com/v1/test/getcrumb", timeout=15).read().decode().strip()
+                  if crumb and "<" not in crumb:
+                      print(f"Got crumb via {seed}")
+                      break
+              except Exception as e:
+                  print(f"Crumb via {seed} failed: {e}")
+          if not crumb:
+              print("No crumb obtained; v7 will fail and script will fall back to v8 (last trade)")
 
           def fetch_quotes(symbols):
               if not symbols: return {}
