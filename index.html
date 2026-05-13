@@ -156,64 +156,64 @@
 
 <script>
 // ============ SNAPSHOT TIMESTAMP (written by update-prices workflow) ============
-const LAST_UPDATED = '2026-05-13T14:41:43Z';
+const LAST_UPDATED = '2026-05-13T15:41:34Z';
 
 // ============ HOLDINGS — shares + option contracts ============
 // fp/mark/opt are updated every minute by the update-prices workflow from
 // Alpaca real-time bid/ask quotes. No client-side price fetching.
 const holdings = [
-  {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:54.45,opt:0,contracts:[]},
-  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:667272,contracts:[
-    {occ:'MU261218C00250000',qty:6,cost:24072,mark:565.0},
-    {occ:'MU270319C00300000',qty:6,cost:59071,mark:547.12}
+  {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:54.09,opt:0,contracts:[]},
+  {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:646416,contracts:[
+    {occ:'MU261218C00250000',qty:6,cost:24072,mark:555.36},
+    {occ:'MU270319C00300000',qty:6,cost:59071,mark:522.0}
   ]},
-  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:387.84,sc:36891.65,opt:140244,contracts:[
-    {occ:'GOOG281215C00400000',qty:6,cost:34315,mark:102.66},
-    {occ:'GOOG271217C00300000',qty:6,cost:8436,mark:131.08}
+  {symbol:'GOOG',name:'Alphabet',cost:79642.65,shares:200,fp:394.03,sc:36891.65,opt:143226,contracts:[
+    {occ:'GOOG281215C00400000',qty:6,cost:34315,mark:103.5},
+    {occ:'GOOG271217C00300000',qty:6,cost:8436,mark:135.21}
   ]},
-  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:224.46,sc:36642.80,opt:125915,contracts:[
-    {occ:'NVDA271217C00200000',qty:10,cost:43599,mark:68.68},
-    {occ:'NVDA270319C00180000',qty:5,cost:18725,mark:65.28},
-    {occ:'NVDA270115C00200000',qty:5,cost:16697,mark:49.19}
+  {symbol:'NVDA',name:'Nvidia',cost:115663.80,shares:200,fp:226.12,sc:36642.80,opt:128625,contracts:[
+    {occ:'NVDA271217C00200000',qty:10,cost:43599,mark:70.41},
+    {occ:'NVDA270319C00180000',qty:5,cost:18725,mark:66.13},
+    {occ:'NVDA270115C00200000',qty:5,cost:16697,mark:50.3}
   ]},
-  {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:77.13,opt:0,contracts:[]},
-  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:29.41,sc:22960,opt:64720,contracts:[
-    {occ:'GLXY270115C00025000',qty:40,cost:22710,mark:11.52},
-    {occ:'GLXY270115C00030000',qty:20,cost:18650,mark:9.32}
+  {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:74.95,opt:0,contracts:[]},
+  {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:31.67,sc:22960,opt:66700,contracts:[
+    {occ:'GLXY270115C00025000',qty:40,cost:22710,mark:11.97},
+    {occ:'GLXY270115C00030000',qty:20,cost:18650,mark:9.41}
   ]},
-  {symbol:'CRWV',name:'Coreweave',cost:56983,shares:400,fp:108.31,sc:46519,opt:19356,contracts:[
-    {occ:'CRWV270319C00075000',qty:4,cost:10464,mark:48.39}
+  {symbol:'CRWV',name:'Coreweave',cost:56983,shares:400,fp:110.9,sc:46519,opt:20072,contracts:[
+    {occ:'CRWV270319C00075000',qty:4,cost:10464,mark:50.18}
   ]},
-  {symbol:'COIN',name:'Coinbase',cost:77014,shares:400,fp:203.84,opt:0,contracts:[]},
-  {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:43516,contracts:[
-    {occ:'AMZN281215C00200000',qty:4,cost:27997,mark:108.79}
+  {symbol:'COIN',name:'Coinbase',cost:77014,shares:400,fp:202.0,opt:0,contracts:[]},
+  {symbol:'AMZN',name:'Amazon',cost:27997,shares:0,fp:0,opt:43268,contracts:[
+    {occ:'AMZN281215C00200000',qty:4,cost:27997,mark:108.17}
   ]},
-  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,sc:0,opt:25131,contracts:[
-    {occ:'META281215C00650000',qty:1,cost:20190,mark:157.08},
-    {occ:'META270319C00600000',qty:1,cost:8651,mark:94.23}
+  {symbol:'META',name:'Meta',cost:28841,shares:0,fp:0,sc:0,opt:25509,contracts:[
+    {occ:'META281215C00650000',qty:1,cost:20190,mark:157.95},
+    {occ:'META270319C00600000',qty:1,cost:8651,mark:97.14}
   ]},
-  {symbol:'ORCL',name:'Oracle',cost:32018,shares:200,fp:186.19,opt:0,contracts:[]},
-  {symbol:'RKLB',name:'Rocketlab',cost:29012,shares:400,fp:124.62,opt:0,contracts:[]},
+  {symbol:'ORCL',name:'Oracle',cost:32018,shares:200,fp:185.88,opt:0,contracts:[]},
+  {symbol:'RKLB',name:'Rocketlab',cost:29012,shares:400,fp:123.91,opt:0,contracts:[]},
   {symbol:'KRKNF',name:'Kraken Robotics',cost:25500,shares:5000,fp:6.19,opt:0,contracts:[]},
-  {symbol:'AAPL',name:'Apple',cost:25115,shares:0,fp:0,opt:60465,contracts:[
-    {occ:'AAPL260717C00260000',qty:15,cost:25115,mark:40.31}
+  {symbol:'AAPL',name:'Apple',cost:25115,shares:0,fp:0,opt:61320,contracts:[
+    {occ:'AAPL260717C00260000',qty:15,cost:25115,mark:40.88}
   ]},
-  {symbol:'NBIS',name:'Nebius',cost:9717,shares:0,fp:0,opt:36207,contracts:[
-    {occ:'NBIS270115C00100000',qty:3,cost:9717,mark:120.69}
+  {symbol:'NBIS',name:'Nebius',cost:9717,shares:0,fp:0,opt:35739,contracts:[
+    {occ:'NBIS270115C00100000',qty:3,cost:9717,mark:119.13}
   ]},
-  {symbol:'RDW',name:'Redwire',cost:21200,shares:0,fp:0,opt:26100,contracts:[
-    {occ:'RDW270115C00008000',qty:50,cost:21200,mark:5.22}
+  {symbol:'RDW',name:'Redwire',cost:21200,shares:0,fp:0,opt:27050,contracts:[
+    {occ:'RDW270115C00008000',qty:50,cost:21200,mark:5.41}
   ]},
-  {symbol:'LUNR',name:'Intuitive Machines',cost:21056,shares:0,fp:0,opt:36900,contracts:[
-    {occ:'LUNR270115C00020000',qty:20,cost:21056,mark:18.45}
+  {symbol:'LUNR',name:'Intuitive Machines',cost:21056,shares:0,fp:0,opt:38940,contracts:[
+    {occ:'LUNR270115C00020000',qty:20,cost:21056,mark:19.47}
   ]},
-  {symbol:'MSFT',name:'Microsoft',cost:11418,shares:0,fp:0,opt:15657,contracts:[
-    {occ:'MSFT270319C00400000',qty:3,cost:11418,mark:52.19}
+  {symbol:'MSFT',name:'Microsoft',cost:11418,shares:0,fp:0,opt:15882,contracts:[
+    {occ:'MSFT270319C00400000',qty:3,cost:11418,mark:52.94}
   ]},
-  {symbol:'PANW',name:'Palo Alto Networks',cost:33499,shares:200,fp:215.86,opt:0,contracts:[]},
-  {symbol:'CRWD',name:'CrowdStrike',cost:42018,shares:100,fp:553.0,opt:0,contracts:[]},
-  {symbol:'BIDU',name:'Baidu',cost:37761.90,shares:300,fp:158.14,opt:0,contracts:[]},
-  {symbol:'BABA',name:'Alibaba',cost:27944,shares:200,fp:144.49,opt:0,contracts:[]}
+  {symbol:'PANW',name:'Palo Alto Networks',cost:33499,shares:200,fp:220.8,opt:0,contracts:[]},
+  {symbol:'CRWD',name:'CrowdStrike',cost:42018,shares:100,fp:548.0,opt:0,contracts:[]},
+  {symbol:'BIDU',name:'Baidu',cost:37761.90,shares:300,fp:150.54,opt:0,contracts:[]},
+  {symbol:'BABA',name:'Alibaba',cost:27944,shares:200,fp:145.06,opt:0,contracts:[]}
 ];
 
 const categoryDef = [
