@@ -156,13 +156,13 @@
 
 <script>
 // ============ SNAPSHOT TIMESTAMP (written by update-prices workflow) ============
-const LAST_UPDATED = '2026-07-29T20:19:20Z';
+const LAST_UPDATED = '2026-07-29T20:39:23Z';
 
 // ============ HOLDINGS — shares + option contracts ============
 // fp/mark/opt are updated every minute by the update-prices workflow from
 // Alpaca real-time bid/ask quotes. No client-side price fetching.
 const holdings = [
-  {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:44.45,opt:0,contracts:[]},
+  {symbol:'DRAM',name:'DRAM',cost:284700,shares:10000,fp:44.06,opt:0,contracts:[]},
   {symbol:'MU',name:'Micron',cost:83143,shares:0,fp:0,sc:0,opt:577446,contracts:[
     {occ:'MU261218C00250000',qty:6,cost:24072,mark:494.12},
     {occ:'MU270319C00300000',qty:6,cost:59071,mark:468.29}
@@ -176,7 +176,7 @@ const holdings = [
     {occ:'NVDA270319C00180000',qty:5,cost:18725,mark:33.62},
     {occ:'NVDA270115C00200000',qty:5,cost:16697,mark:19.83}
   ]},
-  {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:90.47,opt:0,contracts:[]},
+  {symbol:'HOOD',name:'Robinhood',cost:57690,shares:1000,fp:88.51,opt:0,contracts:[]},
   {symbol:'GLXY',name:'Galaxy',cost:64320,shares:1000,fp:18.41,sc:22960,opt:15660,contracts:[
     {occ:'GLXY270115C00025000',qty:40,cost:22710,mark:2.84},
     {occ:'GLXY270115C00030000',qty:20,cost:18650,mark:2.15}
